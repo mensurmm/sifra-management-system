@@ -17,12 +17,12 @@ RUN if [ -f yarn.lock ]; then yarn build; else npm run build; fi
 FROM dunglas/frankenphp:php8.2-bookworm
 WORKDIR /app
 
-# Install system utilities and the required PHP zip extension
+# Install system utilities and the required PHP extensions (Added pdo_mysql)
 RUN apt-get update && apt-get install -y \
     unzip \
     zip \
     && rm -rf /var/lib/apt/lists/* \
-    && install-php-extensions zip
+    && install-php-extensions zip pdo_mysql
 
 # Copy the entire codebase to the container
 COPY . /app
