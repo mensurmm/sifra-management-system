@@ -1,21 +1,45 @@
-FROM dunglas/frankenphp:php8.2-bookworm
-
-# 1. Install system zip utilities AND official Node.js (v22) natively
-RUN apt-get update && apt-get install -y unzip zip libzip-dev curl \
-    && docker-php-ext-install zip \
-    && curl -fsSL https://nodesource.com | bash - \
-    && apt-get install -y nodejs
-
-# 2. Copy the official composer tool
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# 3. Set environment rules for root
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
-# 4. Copy project files and build everything
-COPY . /app
+# === Stage 1: Install Composer Dependencies ===
+FROM composer:latest AS composer_base
 WORKDIR /app
-RUN composer install --no-dev --no-interaction --optimize-autoloader
-RUN npm install && npm run build
+COPY composer.json composer.lock ./
+# Allow plugins if required
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader
 
-ENTRYPOINT ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
+# === Stage 2: Compile Frontend Assets (Node.js) ===
+FROM node:20-alpine AS node_builder
+WORKDIR /app
+# Copy npm files and install frontend packages
+COPY package.json package-lock.json* yarn.lock* ./
+RUN if [ -f yarn.lock ]; then yarn install; else npm ci; fi
+
+# Copy your source code and build your assets (Tailwind/Vite/Mix)
+COPY . .
+RUN if [ -f yarn.lock ]; then yarn build; else npm run build; fi
+
+# === Stage 3: Final Production Server Build ===
+FROM dunglas/frankenphp:php8.2-bookworm
+WORKDIR /app
+
+# Install system utilities and the required PHP zip extension
+RUN apt-get update && apt-get install -y \
+    unzip \
+    zip \
+    && rm -rf /var/lib/apt/lists/* \
+    && install-php-extensions zip
+
+# Copy the entire codebase to the container
+COPY . /app
+
+# Copy vendors and built assets from Stage 1 & Stage 2
+COPY --from=composer_base /app/vendor /app/vendor
+COPY --from=node_builder /app/public /app/public
+
+# Run Composer dump-autoload to complete mapping
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN composer dump-autoload --no-dev --optimize
+
+# Expose server environment port
+ENV PORT=80
+EXPOSE 80
