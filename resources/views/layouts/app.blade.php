@@ -4,7 +4,7 @@
     {{-- <x-ui.theme /> --}}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta class="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Sifra') }} — Management System</title>
 
@@ -21,15 +21,15 @@
         /* Premium Webkit Scrollbar Eraser for Sidebar Module Layout */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         /* Enterprise Dashboard Interactive Card Utility Architecture */
-.stat-card-link-wrapper .group-hover\:border-indigo-500 {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.stat-card-link-wrapper:hover .group-hover\:border-indigo-500 {
-    border-color: #4f46e5 !important;
-    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.08), 0 2px 4px -1px rgba(79, 70, 229, 0.04) !important;
-}
-
+        .stat-card-link-wrapper .group-hover\:border-indigo-500 {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-card-link-wrapper:hover .group-hover\:border-indigo-500 {
+            border-color: #4f46e5 !important;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.08), 0 2px 4px -1px rgba(79, 70, 229, 0.04) !important;
+        }
     </style>
 </head>
 <body class="h-full overflow-hidden bg-[#F8FAFC] text-slate-800" x-data="{ mobileSidebarOpen: false }">
@@ -46,7 +46,7 @@
              class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs lg:hidden"
              @click="mobileSidebarOpen = false"
              x-cloak>
-        </div>
+         </div>
 
         <aside class="fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-[#0F172A] border-r border-slate-800/40 transition-transform duration-200 ease-in-out lg:static lg:translate-x-0"
                :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">

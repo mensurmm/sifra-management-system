@@ -9,7 +9,7 @@
 <body class="bg-slate-50 text-slate-800">
     <main class="min-h-screen">
         @yield('content')
-        {{ $slot }}
+        {{ $slot ?? '' }}
     </main>
 </body>
 </html>

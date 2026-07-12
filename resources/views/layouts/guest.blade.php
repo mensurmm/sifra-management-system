@@ -7,21 +7,19 @@
 
     <title>{{ config('app.name', 'Sifra') }} — Gateway</title>
 
-    <link rel="preconnect" href="https://googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-   <!-- 💡 If a compiled manifest build exists, use it. Otherwise, load the local dev stream -->
-@if(file_exists(public_path('build/manifest.json')))
-    @php
-        $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-    @endphp
-    <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/css/app.css']['file']) }}">
-    <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
-@else
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-@endif
-
+    @if(file_exists(public_path('build/manifest.json')))
+        @php
+            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+        @endphp
+        <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/css/app.css']['file']) }}">
+        <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
+    @else
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
     
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -30,7 +28,6 @@
 </head>
 <body class="h-full bg-[#F8FAFC] text-slate-800 antialiased">
     
-    <!-- Clean, full-screen viewport layout without sidebars or navbars -->
     <main class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8">
         @yield('content')
     </main>
