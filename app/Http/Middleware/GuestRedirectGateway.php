@@ -27,4 +27,4 @@ class GuestRedirectGateway
         // 3. If they are a guest trying to hit ANY other URL, force them to log in!
         return redirect()->route('login');
     }
-}
+} // <--- IT MUST END SECURELY HERE WITH NO TEXT AFTER THIS
