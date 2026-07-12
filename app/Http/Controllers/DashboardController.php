@@ -56,7 +56,8 @@ class DashboardController extends Controller
                 ['name' => 'Others', 'amount' => '1,200', 'color' => '#94A3B8'],
             ];
 
-            return view('dashboard.manager', array_merge($metrics, compact('topProductsBreakdown')));
+            return view('dashboard.index', array_merge($metrics, compact('topProductsBreakdown')));
+
         }
 
         // =========================================================================
@@ -72,7 +73,8 @@ class DashboardController extends Controller
                 ['name' => 'Others', 'amount' => '1,200', 'color' => '#94A3B8'],
             ];
 
-            return view('dashboard.admin', array_merge($metrics, compact('topProductsBreakdown')));
+            return view('dashboard.index', array_merge($metrics, compact('topProductsBreakdown')));
+
         }
 
         // Fallback for unexpected states
