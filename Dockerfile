@@ -1,22 +1,3 @@
-# === Stage 1: Install Composer Dependencies ===
-FROM composer:latest AS composer_base
-WORKDIR /app
-COPY composer.json composer.lock ./
-# Allow plugins if required
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader
-
-# === Stage 2: Compile Frontend Assets (Node.js) ===
-FROM node:20-alpine AS node_builder
-WORKDIR /app
-# Copy npm files and install frontend packages
-COPY package.json package-lock.json* yarn.lock* ./
-RUN if [ -f yarn.lock ]; then yarn install; else npm ci; fi
-
-# Copy your source code and build your assets (Tailwind/Vite/Mix)
-COPY . .
-RUN if [ -f yarn.lock ]; then yarn build; else npm run build; fi
-
 # === Stage 3: Final Production Server Build ===
 FROM dunglas/frankenphp:php8.2-bookworm
 WORKDIR /app
@@ -40,6 +21,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer dump-autoload --no-dev --optimize
 
-# Expose server environment port
+# === CRITICAL FOR RAILWAY REVERSE PROXY ===
+# Tells FrankenPHP to strictly bind to HTTP on port 80 without internal SSL redirections
+ENV SERVER_NAME=:80
 ENV PORT=80
 EXPOSE 80

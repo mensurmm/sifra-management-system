@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'force.reauth' => \App\Http\Middleware\ForcePasswordReauth::class, // 💡 FIXED: Registered Name Barrier
         ]);
     })
+    ->withMiddleware(function (Middleware $middleware) {
+    $middleware->trustProxies(at: '*');
+})
 
 
     ->withExceptions(function (Exceptions $exceptions): void {
