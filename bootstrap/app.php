@@ -10,25 +10,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-      ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
-            'guest.gateway' => \App\Http\Middleware\GuestRedirectGateway::class, // 💡 FIXED: Registered name entry
-        ]);
-    })
-        ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
-            'guest.gateway' => \App\Http\Middleware\GuestRedirectGateway::class,
-            'force.reauth' => \App\Http\Middleware\ForcePasswordReauth::class, // 💡 FIXED: Registered Name Barrier
-        ]);
-    })
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->trustProxies(at: '*');
-})
+        // Register all your custom middleware aliases here
+        $middleware->alias([
+            'role'          => \App\Http\Middleware\CheckRole::class,
+            'guest.gateway' => \App\Http\Middleware\GuestRedirectGateway::class,
+            'force.reauth'  => \App\Http\Middleware\ForcePasswordReauth::class,
+        ]);
 
-
+        // Explicitly trust Railway's reverse proxy layer
+        $middleware->trustProxies(at: '*');
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-        
     })->create();
