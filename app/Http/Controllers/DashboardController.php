@@ -8,7 +8,7 @@ use App\Models\BookCategory;
 use App\Models\BookCopy;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -17,34 +17,65 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
-        // 1. Fetch real aggregate metrics directly from your database storage engines
-        $totalCategoriesCount = BookCategory::count();
-        $totalAuthorsCount = Author::count();
-        $totalPublishersCount = Publisher::count();
-        $totalBooksVolume = Book::count();
-        
-        // 2. Calculate dynamic volume metrics for physical inventory tracking
-        // Assuming your book copies table has a boolean status or availability column
-        $totalCopiesCount = BookCopy::count();
+        $user = $request->user();
 
-        // 3. Optional: Pass real, live data downstream into your middle analytics charts instead of mock values
-        // For example: Grouping products by amount sold to pass into your products donut component
-        $topProductsBreakdown = [
-            ['name' => 'Americano', 'amount' => '2,850', 'color' => '#78350F'],
-            ['name' => 'Latte', 'amount' => '2,100', 'color' => '#FDBA74'],
-            ['name' => 'Cappuccino', 'amount' => '1,950', 'color' => '#FCA5A5'],
-            ['name' => 'Mocha', 'amount' => '1,350', 'color' => '#A78BFA'],
-            ['name' => 'Others', 'amount' => '1,200', 'color' => '#94A3B8'],
-        ];
+        // =========================================================================
+        // 🔒 ROLE 1: STANDARD MEMBERS / GUEST USERS
+        // =========================================================================
+        if ($user->role === 'member' || !$user->role) {
+            // Members only care about their personal borrow histories, reservations, etc.
+            // Do not run massive global administrative counts for basic members!
+            return view('dashboard.member');
+        }
 
-        // 4. Return the complete package to your optimized index layout file view channel
-        return view('dashboard.index', compact(
-            'totalCategoriesCount',
-            'totalAuthorsCount',
-            'totalPublishersCount',
-            'totalBooksVolume',
-            'totalCopiesCount',
-            'topProductsBreakdown'
-        ));
+        // =========================================================================
+        // 📊 ENTERPRISE LAYER: CACHED SYSTEM METRICS (For Admin & Manager)
+        // =========================================================================
+        // Running ::count() directly on every page load kills database performance at scale.
+        // Cache these aggregates for 10 minutes to protect your CPU cores.
+        $metrics = Cache::remember('dashboard_metrics', now()->addMinutes(10), function () {
+            return [
+                'totalCategoriesCount' => BookCategory::count(),
+                'totalAuthorsCount'    => Author::count(),
+                'totalPublishersCount' => Publisher::count(),
+                'totalBooksVolume'     => Book::count(),
+                'totalCopiesCount'     => BookCopy::count(),
+            ];
+        });
+
+        // =========================================================================
+        // 🔒 ROLE 2: CAFE MANAGER VIEW
+        // =========================================================================
+        if ($user->role === 'manager') {
+            // Live café analytics or specialized breakdowns go here
+            $topProductsBreakdown = [
+                ['name' => 'Americano', 'amount' => '2,850', 'color' => '#78350F'],
+                ['name' => 'Latte', 'amount' => '2,100', 'color' => '#FDBA74'],
+                ['name' => 'Cappuccino', 'amount' => '1,950', 'color' => '#FCA5A5'],
+                ['name' => 'Mocha', 'amount' => '1,350', 'color' => '#A78BFA'],
+                ['name' => 'Others', 'amount' => '1,200', 'color' => '#94A3B8'],
+            ];
+
+            return view('dashboard.manager', array_merge($metrics, compact('topProductsBreakdown')));
+        }
+
+        // =========================================================================
+        // 🔒 ROLE 3: HIGH-SECURITY SYSTEM ADMIN
+        // =========================================================================
+        if ($user->role === 'admin') {
+            // The administrator view gets everything + system audit logs if necessary
+            $topProductsBreakdown = [
+                ['name' => 'Americano', 'amount' => '2,850', 'color' => '#78350F'],
+                ['name' => 'Latte', 'amount' => '2,100', 'color' => '#FDBA74'],
+                ['name' => 'Cappuccino', 'amount' => '1,950', 'color' => '#FCA5A5'],
+                ['name' => 'Mocha', 'amount' => '1,350', 'color' => '#A78BFA'],
+                ['name' => 'Others', 'amount' => '1,200', 'color' => '#94A3B8'],
+            ];
+
+            return view('dashboard.admin', array_merge($metrics, compact('topProductsBreakdown')));
+        }
+
+        // Fallback for unexpected states
+        abort(403, 'Unauthorized dashboard execution context.');
     }
 }

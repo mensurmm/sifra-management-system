@@ -19,12 +19,12 @@ class GuestRedirectGateway
             return $next($request);
         }
 
-        // 2. If they are a guest and want to read the public website, let them pass
-        if ($request->is('web') || $request->is('web/*')) {
+        // 2. If they are a guest and want to read the public website OR log in, let them pass
+        if ($request->is('web') || $request->is('web/*') || $request->is('login')) {
             return $next($request);
         }
 
-        // 3. If they are a guest trying to hit ANY other URL (/, /anything, etc.), force them to log in!
+        // 3. If they are a guest trying to hit ANY other URL, force them to log in!
         return redirect()->route('login');
     }
 }
