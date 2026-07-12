@@ -1,42 +1,44 @@
-<x-guest-layout>
+@extends('layouts.guest')
+
+@section('content')
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
         <!-- Name -->
         <div>
-            <x.ui-input-label for="full_name" :value="__('Name')" />
-            <x.ui-text-input id="full_name" class="block mt-1 w-full" type="text" name="full_name" :value="old('full_name')" required autofocus autocomplete="full_name" />
-            <x.ui-input-error :messages="$errors->get('full_name')" class="mt-2" />
+            <x-ui.input-label for="full_name" :value="__('Name')" />
+            <x-ui.text-input id="full_name" class="block mt-1 w-full" type="text" name="full_name" :value="old('full_name')" required autofocus autocomplete="full_name" />
+            <x-ui.input-error :messages="$errors->get('full_name')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x.ui-input-label for="email" :value="__('Email')" />
-            <x.ui-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x.ui-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-ui.input-label for="email" :value="__('Email')" />
+            <x-ui.text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <x-ui.input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
-            <x.ui-input-label for="password" :value="__('Password')" />
+            <x-ui.input-label for="password" :value="__('Password')" />
 
-            <x.ui-text-input id="password" class="block mt-1 w-full"
+            <x-ui.text-input id="password" class="block mt-1 w-full"
                             type="password"
                             name="password"
                             required autocomplete="new-password" />
 
-            <x.ui-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-ui.input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x.ui-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <x-ui.input-label for="password_confirmation" :value="__('Confirm Password')" />
 
-            <x.ui-text-input id="password_confirmation" class="block mt-1 w-full"
+            <x-ui.text-input id="password_confirmation" class="block mt-1 w-full"
                             type="password"
                             name="password_confirmation" required autocomplete="new-password" />
 
-            <x.ui-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+            <x-ui.input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-end mt-4">
@@ -44,9 +46,9 @@
                 {{ __('Already registered?') }}
             </a>
 
-            <x.ui-primary-button class="ms-4">
+            <x-ui.primary-button class="ms-4">
                 {{ __('Register') }}
-            </x.ui-primary-button>
+            </x-ui.primary-button>
         </div>
     </form>
-</x-guest-layout>
+@endsection
