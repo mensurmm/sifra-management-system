@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth; // 💡 FIXED: Import Auth facade
 
 class CheckRole
 {
@@ -19,9 +19,11 @@ class CheckRole
             return redirect()->route('login');
         }
 
-        // 2. If their role is not explicitly allowed in this route parameter list, block them
-        if (!auth()->user()->hasRole($roles)) {
-            abort(403, 'Unauthorized action. You do not possess the necessary administrative access tier.');
+        // 2. Check if the user's role is in the allowed array
+        // 💡 FIXED: Uses the $request->user() method directly to resolve code analysis tracking
+        $user = $request->user();
+        if (!$user || !in_array($user->role, $roles)) {
+            abort(403, 'Unauthorized action. You do not possess the necessary administrative authorization tier.');
         }
 
         return $next($request);

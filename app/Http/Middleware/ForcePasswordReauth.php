@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth; // 💡 FIXED: Make sure this is imported at the top
 
 class ForcePasswordReauth
 {
@@ -13,11 +14,10 @@ class ForcePasswordReauth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 💡 THE SECURITY WALL: If someone is logged in but clicks 'Member Login' on the website,
-        // we forcefully log them out in the background right now! This destroys the active session cookie
-        // so they cannot bypass the password input forms under any circumstance.
-        if (auth()->check()) {
-            auth()->logout();
+        // 💡 FIXED: Replaced auth() with the explicit Auth facade
+        if (Auth::check()) {
+            Auth::logout();
+            
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
